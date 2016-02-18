@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace BackupTool
 {
@@ -24,15 +25,18 @@ namespace BackupTool
 
         private void button3_Click(object sender, EventArgs e)
         {
+            button1.Enabled = false;
+            button2.Enabled = false;
+            button3.Enabled = false;
+            new Thread(() => CBackup.doBackup(txtSource.Text, txtDest.Text)).Start();
             timer1.Enabled = true;
-            MessageBox.Show(CBackup.doBackup(txtSource.Text, txtDest.Text));
-            timer1.Enabled = false;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
             // Reset
-            button3_Click(null, null);
+            //button3_Click(null, null);
+            MessageBox.Show("Fonction non-implémentée.");
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -54,6 +58,15 @@ namespace BackupTool
             else
             {
                 progressBar1.Value = (CBackup.Current <= 0) ? 1 : CBackup.Current;
+            }
+
+            if (CBackup.Finish)
+            {
+                timer1.Enabled = false;
+                MessageBox.Show(CBackup.Message);
+                button1.Enabled = true;
+                button2.Enabled = true;
+                button3.Enabled = true;
             }
         }
     }

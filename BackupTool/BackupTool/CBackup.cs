@@ -26,11 +26,15 @@ namespace BackupTool
 
         public static int Current = 0;
         public static int Total = 0;
+        public static bool Finish = false;
+        public static string Message = "";
 
-        public static string doBackup(string _strSourcePath, string _strDestinationPath)
+        public static void doBackup(string _strSourcePath, string _strDestinationPath)
         {
             Current = 0;
             Total = 0;
+            Finish = false;
+            Message = "";
 
             if (Directory.Exists(_strSourcePath))
             {
@@ -137,16 +141,19 @@ namespace BackupTool
 
                     DeleteEmptyDirectory(_strDestinationPath);
 
-                    return "Opération réussie.";
+                    Message = "Opération réussie.";
+                    Finish = true;
                 }
                 else
                 {
-                    return "Le dossier de destination est introuvable.";
+                    Message = "Le dossier de destination est introuvable.";
+                    Finish = true;
                 }
             }
             else
             {
-                return "Le dossier source est introuvable.";
+                Message = "Le dossier source est introuvable.";
+                Finish = true;
             }
         }
 
