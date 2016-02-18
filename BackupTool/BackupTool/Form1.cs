@@ -16,5 +16,32 @@ namespace BackupTool
         {
             InitializeComponent();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.ShowDialog();
+            txtSource.Text = folderBrowserDialog1.SelectedPath;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.ShowDialog();
+            txtDest.Text = folderBrowserDialog1.SelectedPath;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(CBackup.doBackup(txtSource.Text, txtDest.Text));
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }
