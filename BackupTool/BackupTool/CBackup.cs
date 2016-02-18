@@ -24,8 +24,13 @@ namespace BackupTool
             public string Hash { get; set; }
         }
 
+        public static int Current = 0;
+        public static int Total = 0;
+
         public static string doBackup(string _strSourcePath, string _strDestinationPath)
         {
+            Current = 0;
+            Total = 0;
 
             if (Directory.Exists(_strSourcePath))
             {
@@ -63,9 +68,22 @@ namespace BackupTool
                     DirSearch(_strSourcePath, ref lstFiles);
                     lstFiles = lstFiles.OrderBy(c => c).ToList();
 
+                    Total = lstFiles.Count;
+
                     int currFirstId = 0;
                     foreach (dbFile dbfile in lstdbFiles)
                     {
+                        if (currFirstId >= lstFiles.Count)
+                        {
+                            File.Delete(_strDestinationPath + "\\" + dbfile.Path);
+
+                            SQLiteCommand SqlDeleteFile = new SQLiteCommand(db);
+                            SqlDeleteFile.CommandText = "DELETE FROM Files WHERE FileId = ?";
+                            SqlDeleteFile.Parameters.AddWithValue("param1", dbfile.Id);
+                            SqlDeleteFile.ExecuteNonQuery();
+
+                            continue;
+                        }
                         for (int i = currFirstId; i < lstFiles.Count; i++)
                         {
                             if (dbfile.Path == MakeRelative(lstFiles[i], _strSourcePath + "\\"))
@@ -74,38 +92,50 @@ namespace BackupTool
                                 {
                                     File.Copy(lstFiles[i], _strDestinationPath + "\\" + dbfile.Path, true);
 
-                                    string SqlUpdateFile = string.Format("UPDATE Files SET FileHash = '{0}' WHERE FileId = {1}", GetFileHash(lstFiles[i]), dbfile.Id);
-                                    SQLiteCommand cmdUpdateFile = new SQLiteCommand(SqlUpdateFile, db);
-                                    cmdUpdateFile.ExecuteNonQuery();
+                                    SQLiteCommand SqlUpdateFile = new SQLiteCommand(db);
+                                    SqlUpdateFile.CommandText = "UPDATE Files SET FileHash = ? WHERE FileId = ?";
+                                    SqlUpdateFile.Parameters.AddWithValue("param1", GetFileHash(lstFiles[i]));
+                                    SqlUpdateFile.Parameters.AddWithValue("param2", dbfile.Id);
+                                    SqlUpdateFile.ExecuteNonQuery();
                                 }
                                 lstFiles.RemoveAt(i);
                                 currFirstId = i;
                                 break;
                             }
 
-                            if (!(currFirstId + 1 < lstFiles.Count))
+                            if (!(i + 1 < lstFiles.Count))
                             {
                                 File.Delete(_strDestinationPath + "\\" + dbfile.Path);
 
-                                string SqlDeleteFile = "DELETE FROM Files WHERE FileId = " + dbfile.Id;
-                                SQLiteCommand cmdDeleteFile = new SQLiteCommand(SqlDeleteFile, db);
-                                cmdDeleteFile.ExecuteNonQuery();
+                                SQLiteCommand SqlDeleteFile = new SQLiteCommand(db);
+                                SqlDeleteFile.CommandText = "DELETE FROM Files WHERE FileId = ?";
+                                SqlDeleteFile.Parameters.AddWithValue("param1", dbfile.Id);
+                                SqlDeleteFile.ExecuteNonQuery();
                             }
                         }
+                        Current = currFirstId;
+                        Total = lstFiles.Count;
                     }
 
                     foreach (string file in lstFiles)
                     {
                         string relativePath = MakeRelative(file, _strSourcePath + "\\");
 
+                        (new FileInfo(_strDestinationPath + "\\" + relativePath)).Directory.Create();
                         File.Copy(file, _strDestinationPath + "\\" + relativePath);
 
-                        string SqlInsertFile = string.Format("INSERT INTO Files (FilePath, FileHash) VALUES ('{0}', '{1}')", relativePath, GetFileHash(file));
-                        SQLiteCommand cmdInsertFile = new SQLiteCommand(SqlInsertFile, db);
+                        SQLiteCommand cmdInsertFile = new SQLiteCommand(db);
+                        cmdInsertFile.CommandText = "INSERT INTO Files (FilePath, FileHash) VALUES (?, ?)";
+                        cmdInsertFile.Parameters.AddWithValue("param1", relativePath);
+                        cmdInsertFile.Parameters.AddWithValue("param2", GetFileHash(file));
                         cmdInsertFile.ExecuteNonQuery();
+
+                        Current++;
                     }
 
                     db.Close();
+
+                    DeleteEmptyDirectory(_strDestinationPath);
 
                     return "Opération réussie.";
                 }
@@ -140,7 +170,7 @@ namespace BackupTool
         {
             Uri fileUri = new Uri(_filePath);
             Uri referenceUri = new Uri(_referencePath);
-            return referenceUri.MakeRelativeUri(fileUri).ToString();
+            return Uri.UnescapeDataString(referenceUri.MakeRelativeUri(fileUri).ToString().Replace('/', Path.DirectorySeparatorChar));
         }
 
         private static string GetFileHash(string _fileName)
@@ -148,6 +178,18 @@ namespace BackupTool
             HashAlgorithm sha1 = HashAlgorithm.Create();
             using (FileStream stream = new FileStream(_fileName, FileMode.Open, FileAccess.Read))
                 return Encoding.Default.GetString(sha1.ComputeHash(stream));
+        }
+
+        private static void DeleteEmptyDirectory(string startLocation)
+        {
+            foreach (var directory in Directory.GetDirectories(startLocation))
+            {
+                DeleteEmptyDirectory(directory);
+                if (Directory.GetFileSystemEntries(directory).Length == 0)
+                {
+                    Directory.Delete(directory, false);
+                }
+            }
         }
     }
 }

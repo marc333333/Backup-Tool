@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BackupTool
@@ -31,17 +24,37 @@ namespace BackupTool
 
         private void button3_Click(object sender, EventArgs e)
         {
+            timer1.Enabled = true;
             MessageBox.Show(CBackup.doBackup(txtSource.Text, txtDest.Text));
+            timer1.Enabled = false;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-
+            // Reset
+            button3_Click(null, null);
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            progressBar1.Maximum = CBackup.Total;
+            if (progressBar1.Maximum <= 0)
+            {
+                progressBar1.Value = 0;
+            }
+            else if (CBackup.Current > progressBar1.Maximum)
+            {
+                progressBar1.Value = progressBar1.Maximum;
+            }
+            else
+            {
+                progressBar1.Value = (CBackup.Current <= 0) ? 1 : CBackup.Current;
+            }
         }
     }
 }

@@ -1,0 +1,10 @@
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\bin\Release\BackupTool.exe.config
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\bin\Release\BackupTool.exe
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\bin\Release\BackupTool.pdb
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\bin\Release\System.Data.SQLite.dll
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\bin\Release\System.Data.SQLite.xml
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\obj\Release\BackupTool.Form1.resources
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\obj\Release\BackupTool.Properties.Resources.resources
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\obj\Release\BackupTool.csproj.GenerateResource.Cache
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\obj\Release\BackupTool.exe
+C:\Users\Marc\Documents\QjJyuz\BackupTool\BackupTool\obj\Release\BackupTool.pdb
