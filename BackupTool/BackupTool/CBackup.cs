@@ -72,7 +72,7 @@ namespace BackupTool
                     DirSearch(_strSourcePath, ref lstFiles);
                     lstFiles = lstFiles.OrderBy(c => c).ToList();
 
-                    Total = lstFiles.Count;
+                    Total = lstdbFiles.Count;
 
                     int currFirstId = 0;
                     foreach (dbFile dbfile in lstdbFiles)
@@ -117,9 +117,12 @@ namespace BackupTool
                                 SqlDeleteFile.ExecuteNonQuery();
                             }
                         }
-                        Current = currFirstId;
-                        Total = lstFiles.Count;
+
+                        Current++;
                     }
+
+                    Current = 0;
+                    Total = lstFiles.Count;
 
                     foreach (string file in lstFiles)
                     {
