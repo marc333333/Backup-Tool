@@ -30,6 +30,8 @@ namespace BackupTool
             button2.Enabled = false;
             button3.Enabled = false;
             comboBox1.Enabled = false;
+            txtSource.ReadOnly = true;
+            txtDest.ReadOnly = true;
             new Thread(() => CBackup.doBackup(txtSource.Text, txtDest.Text)).Start();
             timer1.Enabled = true;
         }
@@ -63,6 +65,8 @@ namespace BackupTool
                 button2.Enabled = true;
                 button3.Enabled = true;
                 comboBox1.Enabled = true;
+                txtSource.ReadOnly = false;
+                txtDest.ReadOnly = false;
             }
         }
 
