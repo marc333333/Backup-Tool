@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Windows.Forms;
+using System.IO;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace BackupTool
 {
@@ -13,14 +14,14 @@ namespace BackupTool
 
         private void button1_Click(object sender, EventArgs e)
         {
-            folderBrowserDialog1.ShowDialog();
-            txtSource.Text = folderBrowserDialog1.SelectedPath;
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                txtSource.Text = folderBrowserDialog1.SelectedPath;
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            folderBrowserDialog1.ShowDialog();
-            txtDest.Text = folderBrowserDialog1.SelectedPath;
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                txtDest.Text = folderBrowserDialog1.SelectedPath;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -30,13 +31,6 @@ namespace BackupTool
             button3.Enabled = false;
             new Thread(() => CBackup.doBackup(txtSource.Text, txtDest.Text)).Start();
             timer1.Enabled = true;
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            // Reset
-            //button3_Click(null, null);
-            MessageBox.Show("Fonction non-implémentée.");
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -68,6 +62,26 @@ namespace BackupTool
                 button2.Enabled = true;
                 button3.Enabled = true;
             }
+        }
+
+        string[] arrstrPresets;
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            if (File.Exists("presets.txt"))
+            {
+                arrstrPresets = File.ReadAllLines("presets.txt");
+                for (int i = 0; i < arrstrPresets.Length; i += 3)
+                {
+                    comboBox1.Items.Add(arrstrPresets[i]);
+                }
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            txtSource.Text = arrstrPresets[comboBox1.SelectedIndex * 3 + 1];
+            txtDest.Text = arrstrPresets[comboBox1.SelectedIndex * 3 + 2];
         }
     }
 }
